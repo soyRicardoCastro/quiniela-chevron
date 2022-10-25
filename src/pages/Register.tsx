@@ -1,4 +1,4 @@
-import React from 'react'
+import { Link } from 'react-router-dom'
 
 function Register() {
   return (
@@ -91,9 +91,9 @@ function Register() {
                   </button>
                   <p className="border-t pt-6 text-sm">
                     Ya tienes una cuenta? {' '}
-                    <a href="#" className="text-sky-500">
+                    <Link to="/" className="text-sky-500">
                       Iniciar Sesion
-                    </a>
+                    </Link>
                   </p>
                 </form>
               </div>
