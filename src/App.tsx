@@ -1,5 +1,5 @@
 import React from 'react'
-import { Login, Register } from './pages'
+import { Login, Register, Partidos } from './pages'
 import { Routes, Route } from 'react-router-dom'
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
     <Routes>
       <Route element={<Login />} path='/' />
       <Route element={<Register />} path='/register' />
-
+      <Route element={<Partidos />} path='/partidos' />
     </Routes>
   )
 }
