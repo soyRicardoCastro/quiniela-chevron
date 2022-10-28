@@ -1,7 +1,7 @@
 import create from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import { Equipo, User } from '../types'
+import { User } from '../types'
 
 interface Store {
   user: {
