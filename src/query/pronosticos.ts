@@ -7,6 +7,6 @@ export function usePronostico (id: string) {
   return useQuery([key, id], async () => await getPronostico(id))
 }
 
-export function usePronosticos (id: string) {
-  return useQuery([key, id], async () => await getPronosticos(id))
+export function usePronosticos () {
+  return useQuery([key], getPronosticos)
 }

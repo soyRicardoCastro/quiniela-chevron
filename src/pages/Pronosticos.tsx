@@ -1,24 +1,27 @@
 import { Navigate } from 'react-router-dom'
 import { Layout } from '../components'
-import TeamsCard from '../components/Partidos/TeamsCard'
+import PronosticoCard from '../components/Partidos/PronosticoCard'
 import { usePronosticos } from '../query/pronosticos'
 import { userStore } from '../store'
 
 function Pronosticos() {
   const { user } = userStore()
-
+  
   if (!user) return <Navigate to='/' />
+  const id = user._id
 
-  const { data } = usePronosticos(user._id)
-  console.log(data)
+  const { data, isLoading } = usePronosticos()
+  
+  if (isLoading) return <Layout title='Pronostico'><p>Cargando</p></Layout>
+
+  const filteredData = data?.filter(data => data.usuario === id)
   
   return (
     <Layout title='Mis Pronosticos'>
       <div className='grid place-items-center sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'>
-        {data?.map(pronostico => (
-          <TeamsCard
+        {filteredData?.map(pronostico => (
+          <PronosticoCard
             key={pronostico._id}
-            id={pronostico.idPartido}
             imgA={pronostico.partido.equipoLocal.imagen}
             nameA={pronostico.partido.equipoLocal.nombre}
             imgB={pronostico.partido.equipoVisita.imagen}
@@ -27,7 +30,6 @@ function Pronosticos() {
             pronosticoId={pronostico._id}
             golesLocal={pronostico.golesLocal}
             golesVisita={pronostico.golesVisita}
-            pronosticar
           />
         ))}
       </div>

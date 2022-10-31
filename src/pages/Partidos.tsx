@@ -1,16 +1,23 @@
+import { useEffect, useState } from 'react'
 import { Layout } from '../components'
 import TeamsCard from '../components/Partidos/TeamsCard'
-import { usePartidos } from '../query/partidos'
+import { getPartidos } from '../services/apostar'
+import { Partido } from '../types'
 
 function Partidos() {
-  const { data } = usePartidos()
+  const [data, setData] = useState<any | Partido['body']>([])
+
+  useEffect(() => {
+    getPartidos().then(data => setData(data))
+  }, [])
+
 
     console.log(data)
   return (
     <Layout title='Partidos'>
       <div className='grid place-items-center sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'>
 
-      {data?.map(partido => (
+      {data?.map((partido: Partido['body']) => (
         <TeamsCard
           key={partido._id}
           id={partido._id}

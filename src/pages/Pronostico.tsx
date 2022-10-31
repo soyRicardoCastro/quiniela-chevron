@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Layout } from '../components'
 import { usePronostico } from '../query/pronosticos'
 import { userStore } from '../store'
@@ -12,16 +12,12 @@ function Pronostico() {
   const params = useParams()
   const id = params.id as string
   const { data } = usePronostico(id)
-  if (!data) return <Navigate to='/partidos' />
-  const [golesLocal, setGolesLocal] = useState(data.golesLocal)
-  const [golesVisita, setGolesVisita] = useState(data.golesVisita)
+  const [golesLocal, setGolesLocal] = useState(data?.golesLocal || 0)
+  const [golesVisita, setGolesVisita] = useState(data?.golesVisita || 0)
   const [sending, setSending] = useState(false)
   const { user, setUser } = userStore()
 
-  if (!data.partido.status) {
-    toast.warn('Ya no puedes apostar por este partido')
-    return <Navigate to='/partidos' replace />
-  }
+  const nav = useNavigate()
 
   const minusVisita = () => golesVisita > 0 && setGolesVisita(golesVisita - 1)
   const minusLocal = () => golesLocal > 0 && setGolesLocal(golesLocal - 1)
@@ -40,7 +36,7 @@ function Pronostico() {
       }
 
       await toast.promise(
-        async () => axios.put(`/api/pronostico/${id}`, apuesta),
+        async () => axios.put(`/api/updatePronostico/${id}`, apuesta),
         {
           pending: 'Enviando pronostico',
           success: 'Enviado correctamente',
@@ -52,6 +48,7 @@ function Pronostico() {
         `/api/usuarios/${user._id}`
       )
       setUser(data)
+      nav('/mis-pronosticos')
       setSending(false)
     } catch (e) {
       console.error(e)
@@ -64,13 +61,13 @@ function Pronostico() {
       <article className='flex flex-col md:flex-row items-center justify-evenly max-w-md mx-auto py-3 px-3 bg-cyan-500 rounded-md gap-2'>
         <div className='text-xl text-white font-semibold flex flex-col items-center justify-center'>
           <img
-            src={data.partido.equipoLocal.imagen}
+            src={data?.partido.equipoLocal.imagen}
             className='mb-3 w-24 rounded-md'
-            alt={data.partido.equipoLocal.nombre}
+            alt={data?.partido.equipoLocal.nombre}
           />
 
           <div className='flex flex-col text-2xl w-full mx-auto justify-center items-center'>
-            <p>{data.partido.equipoLocal.nombre}</p>
+            <p>{data?.partido.equipoLocal.nombre}</p>
 
             <div className='flex items-center justify-between w-full my-3'>
               <button onClick={minusLocal} className='text-2xl font-bold'>
@@ -92,13 +89,13 @@ function Pronostico() {
 
         <div className='text-xl text-white font-semibold flex flex-col items-center justify-center'>
           <img
-            src={data.partido.equipoVisita.imagen}
+            src={data?.partido.equipoVisita.imagen}
             className='mb-3 w-24 rounded-md'
-            alt={data.partido.equipoVisita.nombre}
+            alt={data?.partido.equipoVisita.nombre}
           />
 
           <div className='flex flex-col w-full mx-auto justify-center items-center text-2xl'>
-            <p>{data.partido.equipoVisita.nombre}</p>
+            <p>{data?.partido.equipoVisita.nombre}</p>
 
             <div className='flex items-center justify-between w-full my-3'>
               <button onClick={minusVisita} className='text-2xl font-bold'>

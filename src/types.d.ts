@@ -33,7 +33,7 @@ export interface Pronostico {
     _id: string
     idUser: number
     idPartido: number
-    user: User['body']
+    usuario: string
     partido: Partido['body']
     golesLocal: number
     golesVisita: number

@@ -6,7 +6,7 @@ function Dashboard() {
   const { user } = userStore()
   const image =
     user?.imagen === ''
-      ? 'https://flowbite.com/docs/images/people/profile-picture-4.jpg'
+      ? 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
       : user?.imagen
 
   return (

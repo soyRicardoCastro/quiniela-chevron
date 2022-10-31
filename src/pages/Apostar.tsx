@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios'
 import { useState } from 'react'
-import { useParams, Navigate } from 'react-router-dom'
+import { useParams, Navigate, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 import { Layout } from '../components'
@@ -15,6 +15,8 @@ function Apostar() {
   const [sending, setSending] = useState(false)
 
   const { user, setUser } = userStore()
+
+  const nav = useNavigate()
 
   const params = useParams()
   const id = params.id as string
@@ -57,7 +59,7 @@ function Apostar() {
         `/api/usuarios/${user._id}`
       )
       setUser(data)
-
+      nav('/mis-pronosticos')
       setSending(false)
     } catch (e) {
       console.error(e)

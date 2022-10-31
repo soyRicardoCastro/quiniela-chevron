@@ -20,6 +20,9 @@ function Settings() {
 
   const image = base64Image as string
 
+  const src = user?.imagen !== '' ? user?.imagen : 
+  'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
+
   const toggleModal = () => setModalOpen(!modalOpen)
 
   const handleSubmit = async () => {
@@ -73,7 +76,7 @@ function Settings() {
         <div className='max-w-md p-6 rounded-md flex flex-col gap-4 justify-center settings_ui'>
 
           <picture className='user-img' >
-          <img src={user?.imagen} alt="user_image" className='user_image' />
+          <img src={src} alt="user_image" className='user_image' />
           </picture>
           
           <label className='flex flex-col gap-2 my-5 text-gray-800'>

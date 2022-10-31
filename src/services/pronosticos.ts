@@ -3,8 +3,8 @@ import { AxiosResponse } from 'axios'
 import { Pronostico } from '../types'
 import { axios } from '.'
 
-export async function getPronosticos (id: string) {
-  const { data }: AxiosResponse<Array<Pronostico['body']>> = await axios.get(`/api/pronosticos/${id}`)
+export async function getPronosticos () {
+  const { data }: AxiosResponse<Array<Pronostico['body']>> = await axios.get(`/api/pronosticos`)
 
   return data
 }
