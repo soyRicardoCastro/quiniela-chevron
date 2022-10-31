@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Modal, Button } from 'flowbite-react'
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
 import { toast } from 'react-toastify'
-
 import { Layout } from '../components'
 import { convertBase64 } from '../utils/convertToBase64'
 import { axios } from '../services'
@@ -30,7 +29,7 @@ function Settings() {
         username?: string
         imagen?: string | unknown
       }
-      let send: Send  = {}
+      let send: Send = {}
       if (name !== '') {
         send.username = name
       }
@@ -38,13 +37,17 @@ function Settings() {
         send.imagen = base64Image
       }
       console.log(send)
-      const { data }: AxiosResponse<User['body']> = await axios.put(`/api/usuarios/${user?._id}`, send)
+      const { data }: AxiosResponse<User['body']> = await axios.put(
+        `/api/usuarios/${user?._id}`,
+        send
+      )
       setUser(data)
       console.log(data)
       toast.success('Usuario Actualizado con exito')
     } catch (error: any) {
       console.error(error)
-      if (error.response.status === 413) return toast.error('La imagen es muy grande, elije otra')
+      if (error.response.status === 413)
+        return toast.error('La imagen es muy grande, elije otra')
       toast.error('Ocurrio un error')
     }
   }
@@ -55,7 +58,7 @@ function Settings() {
     if (file !== null) {
       if (file[0].size > MAXIMO_TAMANIO_BYTES) {
         setImg('')
-        toast.warning(`El tamaño máximo es 2 MB`);
+        toast.warning(`El tamaño máximo es 2 MB`)
         return
       }
 
@@ -67,29 +70,33 @@ function Settings() {
   return (
     <Layout title='Configuracion'>
       <div className='flex items-center justify-center flex-col '>
-        <div className='max-w-md p-6 rounded-md bg-cyan-500 flex flex-col gap-4 justify-center'>
-          <label className='flex flex-col gap-2 my-5 text-white'>
+        <div className='max-w-md p-6 rounded-md flex flex-col gap-4 justify-center settings_ui'>
+
+          <picture className='user-img' >
+          <img src={user?.imagen} alt="user_image" className='user_image' />
+          </picture>
+          
+          <label className='flex flex-col gap-2 my-5 text-gray-800'>
             Nombre
             <input
               type='text'
               name='name'
-              className='rounded-xl bg-cyan-900'
+              className='rounded-md'
               value={name}
               onChange={e => setName(e.target.value)}
             />
           </label>
 
-          <label className='flex flex-col gap-2 my-5 text-white'>
-            Imagen
-            <input
-              type='file'
-              className='rounded-xl'
-              name='image'
-              maxLength={1}
-              max={1}
-              onChange={uploadImage}
-            />
+          <label className='block mb-2 text-gray-700' htmlFor='file_input'>
+            Subir Imagen
           </label>
+          <input
+            className='block w-full text-gray-700 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer focus:outline-none'
+            id='file_input'
+            type='file'
+            name='imagen'
+            onChange={uploadImage}
+          ></input>
 
           {image !== '' && <img src={image} alt='' className='w-16 h-16' />}
 

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { RegisterUserInput } from '../schema/auth'
-import { register } from '../services/auth'
 import { toast } from 'react-toastify'
 import { convertBase64 } from '../utils/convertToBase64'
 import { userStore } from '../store'
@@ -16,9 +15,8 @@ function Register() {
     username: '',
     imagen: ''
   })
-
+  const [sending, setSending] = useState(false)
   const { setUser } = userStore()
-
   const nav = useNavigate()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,8 +24,6 @@ function Register() {
       ...registerInfo,
       [e.target.name]: e.target.value
     })
-
-    console.log(registerInfo)
   }
 
   const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,19 +41,27 @@ function Register() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
-      const { data }: AxiosResponse<User['body']> = await axios.post('/api/register', registerInfo)
-
-      await setUser(data)
-      /*await toast.promise(async () => {
-        
-      }, {
-        pending: 'Enviando informacion',
-        success: 'Usuario creado satisfactoriamente',
-        error: 'Error'
-      })*/
+      setSending(true)
+      await toast.promise(
+        async () => {
+          const { data }: AxiosResponse<User['body']> = await axios.post(
+            '/api/register',
+            registerInfo
+          )
+          await setUser(data)
+        },
+        {
+          pending: 'Enviando informacion',
+          success: 'Usuario creado satisfactoriamente',
+          error: 'Error'
+        }
+      )
+      setSending(false)
       nav('/inicio')
-    } catch (e) {
+    } catch (e: any) {
       console.error(e)
+      toast.error(e)
+      setSending(false)
     }
   }
 
@@ -124,15 +128,41 @@ function Register() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="upload_file">Sube tu imagen</label>
-                    <input type="file" name="imagen" id="upload_file" onChange={uploadImage} />
+                    <label
+                      className='block mb-2 text-gray-700'
+                      htmlFor='file_input'
+                    >
+                      Subir Imagen
+                    </label>
+                    <input
+                      className='block w-full text-gray-700 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer focus:outline-none'
+                      id='file_input'
+                      type='file'
+                      name='imagen'
+                      onChange={uploadImage}
+                    ></input>
+                    <p
+                      className='mt-1 text-sm text-gray-500'
+                      id='file_input_help'
+                    >
+                      SVG, PNG, JPG or GIF (MAX. 800x400px).
+                    </p>
                   </div>
-                  <button
+                  {sending ? (
+                    <button
+                    disabled
+                    className='w-full py-3 px-6 rounded-md bg-sky-600 focus:bg-sky-700 active:bg-sky-500'
+                  >
+                    <span className='text-white'>Registrarse</span>
+                  </button>
+                  ) : (
+                    <button
                     type='submit'
                     className='w-full py-3 px-6 rounded-md bg-sky-600 focus:bg-sky-700 active:bg-sky-500'
                   >
-                    <span className='text-white'>Enviar</span>
+                    <span className='text-white'>Registrarse</span>
                   </button>
+                  )}
                   <p className='border-t pt-6 text-sm'>
                     Ya tienes una cuenta?{' '}
                     <Link to='/' className='text-sky-500'>
@@ -142,15 +172,6 @@ function Register() {
                 </form>
               </div>
             </div>
-          </div>
-          <div className='text-center space-x-4'>
-            <span>© Chevron - Quiniela</span>
-            <a href='#' className='text-sm hover:text-sky-900'>
-              Contact
-            </a>
-            <a href='#' className='text-sm hover:text-sky-900'>
-              Privacy &amp; Terms
-            </a>
           </div>
         </div>
       </div>

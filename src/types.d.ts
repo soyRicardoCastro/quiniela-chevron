@@ -6,6 +6,7 @@ export interface User {
     email: string
     puntos: number
     imagen: string
+    pronosticos: Array<string>
   }
 }
 
@@ -29,6 +30,7 @@ export interface Partido {
 
 export interface Pronostico {
   body: {
+    _id: string
     idUser: number
     idPartido: number
     user: User['body']

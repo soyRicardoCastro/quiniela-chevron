@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom'
-
 import {
   Login,
   Register,
@@ -7,7 +6,9 @@ import {
   Apostar,
   Leaderboard,
   Dashboard,
-  Settings
+  Settings,
+  Pronosticos,
+  Pronostico
 } from './pages'
 import { ToastContainer } from 'react-toastify'
 import { RequireAuth } from './components'
@@ -30,6 +31,8 @@ function App() {
           <Route element={<Partidos />} path='/partidos' />
           <Route element={<Apostar />} path='/apostar/:id' />
           <Route element={<Leaderboard />} path='/clasificatoria' />
+          <Route element={<Pronosticos />} path='/mis-pronosticos' />
+          <Route element={<Pronostico />} path='/pronostico/:id' />
 
           <Route element={<Dashboard />} path='/inicio' />
           <Route element={<Settings />} path='/configuracion' />

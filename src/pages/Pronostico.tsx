@@ -1,27 +1,24 @@
-import { AxiosResponse } from 'axios'
 import { useState } from 'react'
-import { useParams, Navigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
-
+import { Navigate, useParams } from 'react-router-dom'
 import { Layout } from '../components'
-import { usePartido } from '../query/partidos'
-import { axios } from '../services'
+import { usePronostico } from '../query/pronosticos'
 import { userStore } from '../store'
+import { toast } from 'react-toastify'
+import { axios } from '../services'
+import { AxiosResponse } from 'axios'
 import { User } from '../types'
 
-function Apostar() {
-  const [golesLocal, setGolesLocal] = useState(0)
-  const [golesVisita, setGolesVisita] = useState(0)
-  const [sending, setSending] = useState(false)
-
-  const { user, setUser } = userStore()
-
+function Pronostico() {
   const params = useParams()
   const id = params.id as string
+  const { data } = usePronostico(id)
+  if (!data) return <Navigate to='/partidos' />
+  const [golesLocal, setGolesLocal] = useState(data.golesLocal)
+  const [golesVisita, setGolesVisita] = useState(data.golesVisita)
+  const [sending, setSending] = useState(false)
+  const { user, setUser } = userStore()
 
-  const { data } = usePartido(id)
-
-  if (data?.status === false) {
+  if (!data.partido.status) {
     toast.warn('Ya no puedes apostar por este partido')
     return <Navigate to='/partidos' replace />
   }
@@ -38,14 +35,12 @@ function Apostar() {
       if (!user) return
 
       const apuesta = {
-        idUsuario: user._id,
-        idPartido: id,
         golesLocal: golesLocal,
         golesVisita: golesVisita
       }
 
       await toast.promise(
-        async () => axios.post(`/api/pronostico`, apuesta),
+        async () => axios.put(`/api/pronostico/${id}`, apuesta),
         {
           pending: 'Enviando pronostico',
           success: 'Enviado correctamente',
@@ -57,7 +52,6 @@ function Apostar() {
         `/api/usuarios/${user._id}`
       )
       setUser(data)
-
       setSending(false)
     } catch (e) {
       console.error(e)
@@ -66,17 +60,17 @@ function Apostar() {
   }
 
   return (
-    <Layout title='Apostar'>
+    <Layout title='Pronostico'>
       <article className='flex flex-col md:flex-row items-center justify-evenly max-w-md mx-auto py-3 px-3 bg-cyan-500 rounded-md gap-2'>
         <div className='text-xl text-white font-semibold flex flex-col items-center justify-center'>
           <img
-            src={data?.equipoLocal.imagen}
+            src={data.partido.equipoLocal.imagen}
             className='mb-3 w-24 rounded-md'
-            alt={data?.equipoLocal.nombre}
+            alt={data.partido.equipoLocal.nombre}
           />
 
           <div className='flex flex-col text-2xl w-full mx-auto justify-center items-center'>
-            <p>{data?.equipoLocal.nombre}</p>
+            <p>{data.partido.equipoLocal.nombre}</p>
 
             <div className='flex items-center justify-between w-full my-3'>
               <button onClick={minusLocal} className='text-2xl font-bold'>
@@ -98,13 +92,13 @@ function Apostar() {
 
         <div className='text-xl text-white font-semibold flex flex-col items-center justify-center'>
           <img
-            src={data?.equipoVisita.imagen}
+            src={data.partido.equipoVisita.imagen}
             className='mb-3 w-24 rounded-md'
-            alt={data?.equipoVisita.nombre}
+            alt={data.partido.equipoVisita.nombre}
           />
 
           <div className='flex flex-col w-full mx-auto justify-center items-center text-2xl'>
-            <p>{data?.equipoVisita.nombre}</p>
+            <p>{data.partido.equipoVisita.nombre}</p>
 
             <div className='flex items-center justify-between w-full my-3'>
               <button onClick={minusVisita} className='text-2xl font-bold'>
@@ -138,4 +132,4 @@ function Apostar() {
   )
 }
 
-export default Apostar
+export default Pronostico

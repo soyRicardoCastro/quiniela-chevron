@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { GiHamburgerMenu } from 'react-icons/gi'
 import { FaWindowClose } from 'react-icons/fa'
 import { IoMdExit } from 'react-icons/io'
@@ -8,8 +8,26 @@ import { userStore } from '../store'
 
 function Sidebar() {
   const [menuActive, setMenuActive] = useState(false)
-
   const { removeUser } = userStore()
+  const [screenSize, setScreenSize] = useState(window.innerWidth)
+
+  useEffect(() => {
+    const handleResize = () => setScreenSize(window.innerWidth);
+
+    window.addEventListener('resize', handleResize);
+
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (screenSize <= 900) {
+      setMenuActive(false);
+    } else {
+      setMenuActive(true);
+    }
+  }, [screenSize]);
 
   const handleClick = () => {
     removeUser()
@@ -18,13 +36,13 @@ function Sidebar() {
   }
 
   return (
-    <aside className='h-screen bg-gray-100 w-auto'>
+    <aside className='h-screen w-auto'>
       <div
-        className={`sidebar h-screen overflow-hidden border-r hover:bg-white hover:shadow-lg ${
+        className={`sidebar relative h-screen overflow-hidden hover:bg-white hover:shadow-lg ${
           menuActive ? 'w-56' : 'w-[3.55rem]'
         }`}
       >
-        <div className='flex h-screen flex-col justify-between pt-2 pb-6'>
+        <div className='flex fixed h-screen flex-col justify-between pt-2 pb-6'>
           <div>
             <div className='w-max p-2.5 flex flex-col gap-2 justify-center items-center mx-auto'>
               {menuActive ? (
@@ -53,7 +71,7 @@ function Sidebar() {
                   >
                     {route.icon}{' '}
                     <span
-                      className={`-mr-1 font-medium ${
+                      className={`-mr-1 font-medium text-xl ${
                         menuActive ? 'inline-flex' : 'hidden'
                       }`}
                     >
@@ -64,9 +82,9 @@ function Sidebar() {
               ))}
               <li className='min-w-max'>
                 <button onClick={handleClick} className='relative flex items-center mx-[2px] space-x-4 bg-gradient-to-r from-red-700 to-red-600 px-4 py-3 text-white rounded-xl'>
-                  <IoMdExit className='text-white text-xl' />{' '}
+                  <IoMdExit className='text-white text-2xl' />{' '}
                   <span
-                    className={`-mr-1 font-medium ${
+                    className={`-mr-1 text-md font-medium ${
                       menuActive ? 'inline-flex' : 'hidden'
                     }`}
                   >
