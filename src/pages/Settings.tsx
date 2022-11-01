@@ -1,27 +1,47 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Modal, Button } from 'flowbite-react'
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
 import { toast } from 'react-toastify'
 import { Layout } from '../components'
-import { convertBase64 } from '../utils/convertToBase64'
 import { axios } from '../services'
 import { userStore } from '../store'
 import { AxiosResponse } from 'axios'
 import { User } from '../types'
-
-const MAXIMO_TAMANIO_BYTES = 2000000
+import { BsUpload } from 'react-icons/bs'
 
 function Settings() {
   const [modalOpen, setModalOpen] = useState(false)
   const { user, setUser } = userStore()
   const [name, setName] = useState(user?.username ? user?.username : '')
-  const [base64Image, setBase64Image] = useState<string | unknown>('')
   const [img, setImg] = useState('')
 
-  const image = base64Image as string
+  const src =
+    user?.imagen !== ''
+      ? user?.imagen
+      : 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
 
-  const src = user?.imagen !== '' ? user?.imagen : 
-  'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
+  const cloudinaryRef = useRef()
+  const widgetRef = useRef()
+
+  useEffect(() => {
+    // @ts-ignore
+    cloudinaryRef.current = window.cloudinary
+    // @ts-ignore
+
+    widgetRef.current = cloudinaryRef?.current?.createUploadWidget(
+      {
+        cloudName: 'ricardocastrodev',
+        uploadPreset: 't1iklimr'
+      },
+      // @ts-ignore
+      function (error, result) {
+        if (result.info.secure_url !== undefined) {
+          setImg(result.info.secure_url)
+          console.log(result.info.secure_url)
+        }
+      }
+    )
+  }, [])
 
   const toggleModal = () => setModalOpen(!modalOpen)
 
@@ -36,8 +56,8 @@ function Settings() {
       if (name !== '') {
         send.username = name
       }
-      if (base64Image !== '') {
-        send.imagen = base64Image
+      if (img !== '') {
+        send.imagen = img
       }
       console.log(send)
       const { data }: AxiosResponse<User['body']> = await axios.put(
@@ -45,7 +65,6 @@ function Settings() {
         send
       )
       setUser(data)
-      console.log(data)
       toast.success('Usuario Actualizado con exito')
     } catch (error: any) {
       console.error(error)
@@ -55,30 +74,31 @@ function Settings() {
     }
   }
 
-  const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files
-
-    if (file !== null) {
-      if (file[0].size > MAXIMO_TAMANIO_BYTES) {
-        setImg('')
-        toast.warning(`El tamaño máximo es 2 MB`)
-        return
-      }
-
-      const base64 = await convertBase64(file[0])
-      setBase64Image(base64)
-    } else return
+  const Btn = () => {
+    return (
+      // @ts-ignore
+      <p
+        className='block w-full text-white text-sm bg-blue-500 rounded-lg cursor-pointer focus:outline-none flex justify-center item-center gap-3 hover:bg-blue-400 transition py-2'
+        onClick={e => {
+          e.preventDefault()
+          // @ts-ignore
+          widgetRef.current.open()
+        }}
+      >
+        <BsUpload className='text-xl text-white'/>
+        Subir Imagen
+      </p>
+    )
   }
 
   return (
-    <Layout title='Configuracion'>
+    <Layout title='Configuración'>
       <div className='flex items-center justify-center flex-col '>
         <div className='max-w-md p-6 rounded-md flex flex-col gap-4 justify-center settings_ui'>
-
-          <picture className='user-img' >
-          <img src={src} alt="user_image" className='user_image' />
+          <picture className='user-img'>
+            <img src={src} alt='user_image' className='user_image' />
           </picture>
-          
+
           <label className='flex flex-col gap-2 my-5 text-gray-800'>
             Nombre
             <input
@@ -90,18 +110,9 @@ function Settings() {
             />
           </label>
 
-          <label className='block mb-2 text-gray-700' htmlFor='file_input'>
-            Subir Imagen
-          </label>
-          <input
-            className='block w-full text-gray-700 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer focus:outline-none'
-            id='file_input'
-            type='file'
-            name='imagen'
-            onChange={uploadImage}
-          ></input>
+          <Btn />
 
-          {image !== '' && <img src={image} alt='' className='w-16 h-16' />}
+          {img !== '' && <img src={img} alt='' className='w-16 h-16' />}
 
           <Button onClick={() => setModalOpen(true)}>Enviar</Button>
         </div>

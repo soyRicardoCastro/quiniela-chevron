@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { RegisterUserInput } from '../schema/auth'
 import { toast } from 'react-toastify'
-import { convertBase64 } from '../utils/convertToBase64'
 import { userStore } from '../store'
 import { AxiosResponse } from 'axios'
 import { User } from '../types'
 import { axios } from '../services'
+import { BsUpload } from 'react-icons/bs'
 
 function Register() {
   const [registerInfo, setRegisterInfo] = useState<RegisterUserInput>({
@@ -15,6 +15,7 @@ function Register() {
     username: '',
     imagen: ''
   })
+  const [img, setImg] = useState('')
   const [sending, setSending] = useState(false)
   const { setUser } = userStore()
   const nav = useNavigate()
@@ -26,17 +27,33 @@ function Register() {
     })
   }
 
-  const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files
-    if (file !== null) {
-      const base64 = await convertBase64(file[0])
-      const imagen = base64 as string
-      await setRegisterInfo({
-        ...registerInfo,
-        imagen
-      })
-    } else return
-  }
+  const cloudinaryRef = useRef()
+  const widgetRef = useRef()
+
+  useEffect(() => {
+    // @ts-ignore
+    cloudinaryRef.current = window.cloudinary
+    // @ts-ignore
+
+    widgetRef.current = cloudinaryRef?.current?.createUploadWidget(
+      {
+        cloudName: 'ricardocastrodev',
+        uploadPreset: 't1iklimr'
+      },
+      // @ts-ignore
+      function (error, result) {
+        if (result.info.secure_url !== undefined) {
+          setImg(result.info.secure_url)
+          setRegisterInfo({
+            ...registerInfo,
+            imagen: img
+          })
+          console.log(result.info.secure_url)
+          console.log(registerInfo)
+        }
+      }
+    )
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
@@ -53,16 +70,38 @@ function Register() {
         {
           pending: 'Enviando informacion',
           success: 'Usuario creado satisfactoriamente',
-          error: 'Error'
+          error: 'Ha ocurrido un error'
         }
       )
       setSending(false)
       nav('/inicio')
     } catch (e: any) {
       console.error(e)
-      toast.error(e)
       setSending(false)
+      if (e.response.status === '404')
+        return toast.error('Este usuario no existe')
+      if (e.response.status === '401')
+        return toast.error('Usuario o Clave incorrecta')
+      toast.error(e)
     }
+  }
+
+  const Btn = () => {
+    return (
+      // @ts-ignore
+        
+        <p className='block w-full text-white bg-blue-500 rounded-lg border cursor-pointer focus:outline-none py-1 flex item-center justify-center gap-3 hover:bg-blue-400 transition py-2'
+        onClick={e => {
+          e.preventDefault()
+          // @ts-ignore
+          widgetRef.current.open()
+        }}
+      >
+        <BsUpload className='text-xl text-white'/>
+        Subir Imagen
+      </p>
+      
+    )
   }
 
   return (
@@ -128,40 +167,23 @@ function Register() {
                     />
                   </div>
                   <div>
-                    <label
-                      className='block mb-2 text-gray-700'
-                      htmlFor='file_input'
-                    >
-                      Subir Imagen
-                    </label>
-                    <input
-                      className='block w-full text-gray-700 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer focus:outline-none'
-                      id='file_input'
-                      type='file'
-                      name='imagen'
-                      onChange={uploadImage}
-                    ></input>
-                    <p
-                      className='mt-1 text-sm text-gray-500'
-                      id='file_input_help'
-                    >
-                      SVG, PNG, JPG or GIF (MAX. 800x400px).
-                    </p>
+                    {/* @ts-ignore */}
+                    <Btn />
                   </div>
                   {sending ? (
                     <button
-                    disabled
-                    className='w-full py-3 px-6 rounded-md bg-sky-600 focus:bg-sky-700 active:bg-sky-500'
-                  >
-                    <span className='text-white'>Registrarse</span>
-                  </button>
+                      disabled
+                      className='w-full py-3 px-6 rounded-md bg-sky-600 focus:bg-sky-700 active:bg-sky-500'
+                    >
+                      <span className='text-white'>Registrarse</span>
+                    </button>
                   ) : (
                     <button
-                    type='submit'
-                    className='w-full py-3 px-6 rounded-md bg-sky-600 focus:bg-sky-700 active:bg-sky-500'
-                  >
-                    <span className='text-white'>Registrarse</span>
-                  </button>
+                      type='submit'
+                      className='w-full py-3 px-6 rounded-md bg-sky-600 focus:bg-sky-700 active:bg-sky-500'
+                    >
+                      <span className='text-white'>Registrarse</span>
+                    </button>
                   )}
                   <p className='border-t pt-6 text-sm'>
                     Ya tienes una cuenta?{' '}
