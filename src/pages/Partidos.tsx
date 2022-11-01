@@ -10,9 +10,7 @@ function Partidos() {
   useEffect(() => {
     getPartidos().then(data => setData(data))
   }, [])
-
-
-    console.log(data)
+  
   return (
     <Layout title='Partidos'>
       <div className='grid place-items-center sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'>

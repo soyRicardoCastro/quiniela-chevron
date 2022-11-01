@@ -50,8 +50,7 @@ function Apostar() {
         async () => axios.post(`/api/pronostico`, apuesta),
         {
           pending: 'Enviando pronostico',
-          success: 'Enviado correctamente',
-          error: 'Ha ocurrido un error'
+          success: 'Enviado correctamente'
         }
       )
 
@@ -61,7 +60,11 @@ function Apostar() {
       setUser(data)
       nav('/mis-pronosticos')
       setSending(false)
-    } catch (e) {
+    } catch (e: any) {
+      if (e.response.status === 401) {
+        toast.warn('No puedes pronosticar dos veces al mismo partido')
+        return nav('/partidos')
+      }
       console.error(e)
       setSending(false)
     }

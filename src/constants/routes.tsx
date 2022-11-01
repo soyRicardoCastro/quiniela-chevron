@@ -29,6 +29,6 @@ export const userRoutes = [
   {
     path: '/configuracion',
     icon: <BiSliderAlt className={iconStyles} />,
-    name: 'Configuracion'
+    name: 'Configuración'
   },
 ]

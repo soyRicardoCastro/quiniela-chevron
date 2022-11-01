@@ -88,7 +88,7 @@ function Sidebar() {
                       menuActive ? 'inline-flex' : 'hidden'
                     }`}
                   >
-                    Cerrar Sesion
+                    Cerrar Sesión
                   </span>
                 </button>
               </li>
