@@ -7,6 +7,7 @@ import { AxiosResponse } from 'axios'
 import { User } from '../types'
 import { axios } from '../services'
 import { BsUpload } from 'react-icons/bs'
+import { register } from '../services/auth'
 
 function Register() {
   const [registerInfo, setRegisterInfo] = useState<RegisterUserInput>({
@@ -27,33 +28,30 @@ function Register() {
     })
   }
 
-  const cloudinaryRef = useRef()
-  const widgetRef = useRef()
+  // @ts-ignore
+  const handleImage = (e) => {
+    const file = e.target.files[0]
+    setFileToBase(file)
+  }
+  // @ts-ignore
+  const setFileToBase = (file) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    // @ts-ignore
+    reader.onloadend = () => setImg(reader.result)
+  }
 
   useEffect(() => {
-    // @ts-ignore
-    cloudinaryRef.current = window.cloudinary
-    // @ts-ignore
-
-    widgetRef.current = cloudinaryRef?.current?.createUploadWidget(
-      {
-        cloudName: 'ricardocastrodev',
-        uploadPreset: 't1iklimr'
-      },
-      // @ts-ignore
-      function (error, result) {
-        if (result.info.secure_url !== undefined) {
-          setImg(result.info.secure_url)
-          setRegisterInfo({
-            ...registerInfo,
-            imagen: img
-          })
-          console.log(result.info.secure_url)
-          console.log(registerInfo)
-        }
-      }
-    )
-  }, [])
+    if (img.length >= 10000) {
+      toast.warning('La imagen es muy grande, escoje otra')
+      setImg('')
+      return
+    }
+    setRegisterInfo({
+      ...registerInfo,
+      imagen: img
+    })
+  }, [img])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
@@ -69,8 +67,7 @@ function Register() {
         },
         {
           pending: 'Enviando informacion',
-          success: 'Usuario creado satisfactoriamente',
-          error: 'Ha ocurrido un error'
+          success: 'Usuario creado satisfactoriamente'
         }
       )
       setSending(false)
@@ -78,30 +75,10 @@ function Register() {
     } catch (e: any) {
       console.error(e)
       setSending(false)
-      if (e.response.status === '404')
-        return toast.error('Este usuario no existe')
-      if (e.response.status === '401')
-        return toast.error('Usuario o Clave incorrecta')
+      if (e.response.status === 413)
+        return toast.error('La imagen es muy grande, escoje otra')
       toast.error(e)
     }
-  }
-
-  const Btn = () => {
-    return (
-      // @ts-ignore
-        
-        <p className='block w-full text-white bg-blue-500 rounded-lg border cursor-pointer focus:outline-none py-1 flex item-center justify-center gap-3 hover:bg-blue-400 transition py-2'
-        onClick={e => {
-          e.preventDefault()
-          // @ts-ignore
-          widgetRef.current.open()
-        }}
-      >
-        <BsUpload className='text-xl text-white'/>
-        Subir Imagen
-      </p>
-      
-    )
   }
 
   return (
@@ -168,7 +145,8 @@ function Register() {
                   </div>
                   <div>
                     {/* @ts-ignore */}
-                    <Btn />
+                    {/* <Btn /> */}
+                    <input type="file" className='w-full text-white bg-blue-500 rounded-lg border cursor-pointer focus:outline-none flex item-center justify-center gap-3 hover:bg-blue-400 transition py-2' onChange={(e) => handleImage(e)} />
                   </div>
                   {sending ? (
                     <button

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Modal, Button } from 'flowbite-react'
 import { HiOutlineExclamationCircle } from 'react-icons/hi'
 import { toast } from 'react-toastify'
@@ -7,7 +7,6 @@ import { axios } from '../services'
 import { userStore } from '../store'
 import { AxiosResponse } from 'axios'
 import { User } from '../types'
-import { BsUpload } from 'react-icons/bs'
 
 function Settings() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -20,30 +19,29 @@ function Settings() {
       ? user?.imagen
       : 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
 
-  const cloudinaryRef = useRef()
-  const widgetRef = useRef()
+  const toggleModal = () => setModalOpen(!modalOpen)
+
+  // @ts-ignore
+  const handleImage = (e) => {
+    const file = e.target.files[0]
+    setFileToBase(file)
+  }
+  // @ts-ignore
+  const setFileToBase = (file) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    // @ts-ignore
+    reader.onloadend = () => setImg(reader.result)
+  }
 
   useEffect(() => {
-    // @ts-ignore
-    cloudinaryRef.current = window.cloudinary
-    // @ts-ignore
-
-    widgetRef.current = cloudinaryRef?.current?.createUploadWidget(
-      {
-        cloudName: 'ricardocastrodev',
-        uploadPreset: 't1iklimr'
-      },
-      // @ts-ignore
-      function (error, result) {
-        if (result.info.secure_url !== undefined) {
-          setImg(result.info.secure_url)
-          console.log(result.info.secure_url)
-        }
-      }
-    )
-  }, [])
-
-  const toggleModal = () => setModalOpen(!modalOpen)
+    console.log(img.length)
+    if (img.length >= 10000) {
+      toast.warning('La imagen es muy grande, escoje otra')
+      setImg('')
+      return
+    }
+  }, [img])
 
   const handleSubmit = async () => {
     toggleModal()
@@ -74,23 +72,6 @@ function Settings() {
     }
   }
 
-  const Btn = () => {
-    return (
-      // @ts-ignore
-      <p
-        className='block w-full text-white text-sm bg-blue-500 rounded-lg cursor-pointer focus:outline-none flex justify-center item-center gap-3 hover:bg-blue-400 transition py-2'
-        onClick={e => {
-          e.preventDefault()
-          // @ts-ignore
-          widgetRef.current.open()
-        }}
-      >
-        <BsUpload className='text-xl text-white'/>
-        Subir Imagen
-      </p>
-    )
-  }
-
   return (
     <Layout title='Configuración'>
       <div className='flex items-center justify-center flex-col '>
@@ -110,7 +91,17 @@ function Settings() {
             />
           </label>
 
-          <Btn />
+          <label className='flex flex-col gap-2 my-5 text-gray-800'>
+            Imagen
+            <input
+              type='file'
+              name='img'
+              className='rounded-md'
+              onChange={e => handleImage(e)}
+            />
+          </label>
+
+          
 
           {img !== '' && <img src={img} alt='' className='w-16 h-16' />}
 
