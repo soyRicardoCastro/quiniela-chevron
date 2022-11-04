@@ -6,8 +6,6 @@ import { userStore } from '../store'
 import { AxiosResponse } from 'axios'
 import { User } from '../types'
 import { axios } from '../services'
-import { BsUpload } from 'react-icons/bs'
-import { register } from '../services/auth'
 
 function Register() {
   const [registerInfo, setRegisterInfo] = useState<RegisterUserInput>({
@@ -77,6 +75,8 @@ function Register() {
       setSending(false)
       if (e.response.status === 413)
         return toast.error('La imagen es muy grande, escoje otra')
+      if (e.response.status === 400)
+        return toast.error('Este usario ya existe')
       toast.error(e)
     }
   }
@@ -144,9 +144,8 @@ function Register() {
                     />
                   </div>
                   <div>
-                    {/* @ts-ignore */}
-                    {/* <Btn /> */}
-                    <input type="file" className='w-full text-white bg-blue-500 rounded-lg border cursor-pointer focus:outline-none flex item-center justify-center gap-3 hover:bg-blue-400 transition py-2' onChange={(e) => handleImage(e)} />
+                  <label className="block mb-2 text-md text-gray-800 dark:text-gray-300" htmlFor="file_input">Upload file</label>
+                  <input className="block w-full text-sm text-gray-800 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" id="file_input" type="file" onChange={(e) => handleImage(e)} />
                   </div>
                   {sending ? (
                     <button
