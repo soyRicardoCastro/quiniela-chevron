@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { RegisterUserInput } from '../schema/auth'
-import { toast } from 'react-toastify'
-import { userStore } from '../store'
 import { AxiosResponse } from 'axios'
-import { User } from '../types'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { RegisterUserInput } from '../schema/auth'
 import { axios } from '../services'
+import { userStore } from '../store'
+import { User } from '../types'
 
 function Register() {
   const [registerInfo, setRegisterInfo] = useState<RegisterUserInput>({
@@ -40,11 +40,6 @@ function Register() {
   }
 
   useEffect(() => {
-    if (img.length >= 10000) {
-      toast.warning('La imagen es muy grande, escoje otra')
-      setImg('')
-      return
-    }
     setRegisterInfo({
       ...registerInfo,
       imagen: img
