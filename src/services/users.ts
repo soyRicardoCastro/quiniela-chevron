@@ -4,7 +4,7 @@ import { User } from '../types'
 import { axios } from '.'
 
 export async function getUsers () {
-  const { data }: AxiosResponse<Array<User['body']>> = await axios.get('/api/usuarios')
+  const { data }: AxiosResponse<Array<User['body']>> = await axios.get('/api/leaderboard/Chevron')
 
   return data
 }
