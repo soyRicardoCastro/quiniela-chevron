@@ -10,7 +10,7 @@ function Partidos() {
   useEffect(() => {
     getPartidos().then(data => setData(data))
   }, [])
-  
+
   return (
     <Layout title='Partidos'>
       <div className='grid place-items-center sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'>
@@ -21,9 +21,14 @@ function Partidos() {
           id={partido._id}
           imgA={partido.equipoLocal.imagen}
           nameA={partido.equipoLocal.nombre}
+          golesA={partido.golesLocal}
+          golesB={partido.golesVisita}
           imgB={partido.equipoVisita.imagen}
           nameB={partido.equipoVisita.nombre}
+          date={partido.date}
           isActive={partido.status}
+          isPlaying={partido.isPlaying}
+          isFinish={partido.isFinish}
         />
       ))}
       </div>

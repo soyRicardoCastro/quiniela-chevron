@@ -25,6 +25,9 @@ export interface Partido {
     golesLocal: number
     golesVisita: number
     status: boolean
+    isPlaying: boolean
+    isFinish: boolean
+    date?: string
   }
 }
 

@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Modal, Button } from 'flowbite-react'
-import { HiOutlineExclamationCircle } from 'react-icons/hi'
 import { toast } from 'react-toastify'
 import { Layout } from '../components'
 import { axios } from '../services'
@@ -9,17 +7,21 @@ import { AxiosResponse } from 'axios'
 import { User } from '../types'
 
 function Settings() {
-  const [modalOpen, setModalOpen] = useState(false)
   const { user, setUser } = userStore()
   const [name, setName] = useState(user?.username ? user?.username : '')
-  const [img, setImg] = useState('')
+  const [img, setImg] = useState(user?.imagen ? user?.imagen : '')
+  const [enable, setEnable] = useState(false)
 
   const src =
     user?.imagen !== ''
       ? user?.imagen
       : 'https://flowbite.com/docs/images/people/profile-picture-2.jpg'
 
-  const toggleModal = () => setModalOpen(!modalOpen)
+  useEffect(() => {
+    if (name !== '' && img !== '') setEnable(true)
+    else setEnable(false)
+  }, [name, img])
+
 
   // @ts-ignore
   const handleImage = (e) => {
@@ -34,17 +36,7 @@ function Settings() {
     reader.onloadend = () => setImg(reader.result)
   }
 
-  useEffect(() => {
-    console.log(img.length)
-    if (img.length >= 10000) {
-      toast.warning('La imagen es muy grande, escoje otra')
-      setImg('')
-      return
-    }
-  }, [img])
-
   const handleSubmit = async () => {
-    toggleModal()
     try {
       interface Send {
         username?: string
@@ -96,33 +88,12 @@ function Settings() {
 
           {img !== '' && <img src={img} alt='' className='w-16 h-16' />}
 
-          <Button onClick={() => setModalOpen(true)}>Enviar</Button>
+          {enable ? (
+            <button type='submit' onClick={handleSubmit} className='py-2 px-4 rounded-md bg-lime-400 text-white text-md'>Enviar</button>
+          ) : (
+            <button disabled className='py-2 px-4 rounded-md bg-gray-200 cursor-not-allowed text-gray-400'>Enviar</button>
+          )}
         </div>
-
-        <Modal
-          show={modalOpen}
-          size='md'
-          popup={true}
-          onClose={() => setModalOpen(false)}
-        >
-          <Modal.Header />
-          <Modal.Body>
-            <div className='text-center'>
-              <HiOutlineExclamationCircle className='mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200' />
-              <h3 className='mb-5 text-lg font-normal text-gray-500 dark:text-gray-400'>
-                Estas seguro de enviar estos cambios?
-              </h3>
-              <div className='flex justify-center gap-4'>
-                <Button color='failure' onClick={handleSubmit}>
-                  Si, Estoy Seguro
-                </Button>
-                <Button color='gray' onClick={() => setModalOpen(false)}>
-                  No, cancelar
-                </Button>
-              </div>
-            </div>
-          </Modal.Body>
-        </Modal>
       </div>
     </Layout>
   )

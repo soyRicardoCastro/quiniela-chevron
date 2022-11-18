@@ -8,7 +8,8 @@ import {
   Dashboard,
   Settings,
   Pronosticos,
-  Pronostico
+  Pronostico,
+  Historial
 } from './pages'
 import { ToastContainer } from 'react-toastify'
 import { RequireAuth } from './components'
@@ -33,6 +34,7 @@ function App() {
           <Route element={<Leaderboard />} path='/clasificatoria' />
           <Route element={<Pronosticos />} path='/mis-pronosticos' />
           <Route element={<Pronostico />} path='/pronostico/:id' />
+          <Route element={<Historial />} path='/historial' />
 
           <Route element={<Dashboard />} path='/inicio' />
           <Route element={<Settings />} path='/configuracion' />
